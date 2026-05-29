@@ -85,4 +85,36 @@ Always extract state via selectors to optimize React performance.
 Avoid duplicating your database state in Zustand. Only store what the UI needs for the current session.
 </details>
 
+## 5. Technical Implementation Patterns
+
+<details>
+<summary><b>Functional Updates & Shallow Merging</b></summary>
+We utilize functional updates <code>(state) => ({ count: state.count + 1 })</code> to ensure we always work with the latest state, preventing race conditions in fast-moving AI streams. Zustand performs a <b>shallow merge</b> by default, which reduces boilerplate compared to React's <code>useState</code> or Redux.
+</details>
+
+<details>
+<summary><b>The Slices Pattern (Scalability)</b></summary>
+To prevent the store from becoming a "God Object," we split state into domain-specific functions (slices).
+<ul>
+    <li><b>Isolation:</b> A bug in the <code>chatSlice</code> won't corrupt the <code>authSlice</code>.</li>
+    <li><b>Maintainability:</b> Smaller, focused files are easier to test and navigate.</li>
+    <li><b>Bound Store:</b> All slices are combined into a single "Bound Store" hook for the UI to consume.</li>
+</ul>
+</details>
+
+<details>
+<summary><b>Surgical Reactivity via Selectors</b></summary>
+Components should never consume the entire store. We use selectors <code>(state) => state.data</code> to ensure a component only re-renders when its specific slice of data changes. This is critical for maintaining 60fps performance during high-frequency AI text streaming.
+</details>
+
+<details>
+<summary><b>Async Action Lifecycle (LED Pattern)</b></summary>
+For all API calls (OpenAI, Supabase, etc.), we follow the <b>Loading-Error-Data</b> pattern:
+<ul>
+    <li><b>Loading:</b> Manage perceived latency with UI spinners.</li>
+    <li><b>Error:</b> Graceful failure handling and retry logic.</li>
+    <li><b>Data:</b> Atomic updates once the asynchronous process is complete.</li>
+</ul>
+</details>
+
 ---
